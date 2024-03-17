@@ -1,0 +1,67 @@
+import os
+import webbrowser
+import pyttsx3
+import speech_recognition as sr
+import time
+import pywhatkit
+import getpass
+
+
+def listen():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio = recognizer.listen(source)
+
+    try:
+        print("Recognizing...")
+        query = recognizer.recognize_google(audio)
+        print(f"You said: {query}")
+        return query.lower(), True  # Return the recognized query and a flag indicating successful recognition
+    except Exception as e:
+        print("Sorry, I couldn't understand. Can you repeat?")
+        return "", False  # Return an empty string and a flag indicating unsuccessful recognition
+
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+
+def get_user_name():
+    return getpass.getuser()
+
+
+def main():
+    user_name = get_user_name()
+    print(f"Hello, {user_name}! I am your voice assistant. How can I help you today?")
+    speak(f"Hello, {user_name}! I am your voice assistant. How can I help you today?")
+
+    while True:
+        command, recognized = listen()
+
+        if recognized:  # Check if the command was successfully recognized
+            if "hello" in command:
+                speak(f"Hello, {user_name}! How can I assist you?")
+            elif "tell my date of birth" in command:
+                speak("I'm sorry, I can't provide personal information.")
+            elif "open youtube" in command:
+                speak("Opening YouTube.")
+                webbrowser.open("https://www.youtube.com")
+            elif "play music" in command:
+                song = command.split("play music")[-1].strip()
+                speak(f"Playing {song} on YouTube.")
+                pywhatkit.playonyt(song)
+            elif "exit" in command:
+                speak("Goodbye!")
+                exit()
+            else:
+                speak(f"Sorry, {user_name}, I didn't catch that. Can you repeat?")
+
+        # Add a short delay after each command execution
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()
